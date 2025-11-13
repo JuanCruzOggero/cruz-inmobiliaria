@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cruz Inmobiliaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #ffffff;
+      color: #3a3a3a;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgb(0, 0, 0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 60px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .logo-container h1 {
+      font-size: 1.3rem;
+      color: #ffffff;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-family: 'Montserrat', 'Poppins', sans-serif;
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: 500;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    nav a:hover {
+      color: #0d6efd;
+    }
+
+    nav a.active {
+      color: #0d6efd;
+      border-bottom: 2px solid #0d6efd;
+      padding-bottom: 5px;
+    }
+
+    .hero-carousel {
+      margin-top: 80px;
+      height: 85vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .carousel-slide.active {
+      opacity: 1;
+    }
+
+    .carousel-slide::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+    }
+
+    .slide-content {
+      position: absolute;
+      bottom: 80px;
+      left: 60px;
+      right: 60px;
+      z-index: 2;
+      color: white;
+    }
+
+    .slide-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .slide-badge.venta {
+      background-color: #198754;
+    }
+
+    .slide-badge.alquiler {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .slide-content h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 15px;
+      font-weight: 700;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .slide-content .price {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #ffc107;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .slide-content .details {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      opacity: 0.95;
+    }
+
+    .slide-content .btn-ver-mas {
+      background-color: #0d6efd;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .slide-content .btn-ver-mas:hover {
+      background-color: #084298;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5);
+    }
+
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: 0.3s;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .carousel-arrow:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .carousel-arrow.prev {
+      left: 30px;
+    }
+
+    .carousel-arrow.next {
+      right: 30px;
+    }
+
+    .carousel-indicators {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .indicator.active {
+      background: white;
+      width: 35px;
+      border-radius: 6px;
+    }
+
+    .search-section {
+      max-width: 1200px;
+      margin: -50px auto 60px;
+      padding: 0 20px;
+      position: relative;
+      z-index: 100;
+    }
+
+    .search-box {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .search-box select,
+    .search-box input {
+      padding: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      width: 100%;
+      transition: 0.3s;
+    }
+
+    .search-box select:focus,
+    .search-box input:focus {
+      border-color: #0d6efd;
+      outline: none;
+    }
+
+    .search-box button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .search-box button:hover {
+      background-color: #084298;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+
+    .properties {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .properties h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .property-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .property-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+
+    .property-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .property-card.hidden {
+      display: none;
+    }
+
+    .property-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background-color: #f0f0f0;
+    }
+
+    .property-info {
+      padding: 20px;
+    }
+
+    .property-info h3 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .property-info p {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+
+    .property-info .price {
+      font-weight: 700;
+      color: #0d6efd;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .property-info .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .badge.alquiler {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .badge.venta {
+      background-color: #198754;
+      color: #fff;
+    }
+
+    .badge.tasacion {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .badge.administracion {
+      background-color: #0dcaf0;
+      color: #000;
+    }
+
+    .property-info a {
+      background-color: #25d366;
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-block;
+      transition: 0.3s;
+    }
+
+    .property-info a:hover {
+      background-color: #1ebe5d;
+      transform: translateY(-2px);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 1.1rem;
+      grid-column: 1 / -1;
+    }
+
+    .social-section {
+      background-color: #f8f9fa;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .social-section h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #212529;
+    }
+
+    .social-section p {
+      color: #666;
+      margin-bottom: 35px;
+      font-size: 1.1rem;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .social-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .social-icon-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .social-icon-circle img {
+      width: 45px;
+      height: 45px;
+    }
+
+    .social-icon span {
+      font-weight: 600;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+
+    .social-icon.instagram .social-icon-circle {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    }
+
+    .social-icon.instagram span {
+      color: #dc2743;
+    }
+
+    .social-icon.instagram:hover .social-icon-circle {
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(220, 39, 67, 0.4);
+    }
+
+    .social-icon.facebook .social-icon-circle {
+      background: #1877f2;
+    }
+
+    .social-icon.facebook span {
+      color: #1877f2;
+    }
+
+    .social-icon.facebook:hover .social-icon-circle {
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(24, 119, 242, 0.4);
+    }
+
+    footer {
+      background-color: #212529;
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .whatsapp-fixed {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 999;
+    }
+
+    .whatsapp-fixed a {
+      display: flex;
+      align-items: center;
+      background-color: #25d366;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      padding: 12px 18px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+      transition: 0.3s;
+    }
+
+    .whatsapp-fixed a:hover {
+      background-color: #1ebe5d;
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+    }
+
+    .whatsapp-fixed img {
+      width: 28px;
+      margin-right: 10px;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px 20px;
+      }
+
+      .carousel-arrow {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+      }
+
+      .carousel-arrow.prev {
+        left: 15px;
+      }
+
+      .carousel-arrow.next {
+        right: 15px;
+      }
+
+      .slide-content {
+        left: 20px;
+        right: 20px;
+        bottom: 50px;
+      }
+
+      .search-box {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <img src="logoCruz.webp" alt="Cruz Inmobiliaria">
+      <h1>Cruz Inmobiliaria</h1>
+    </div>
+    <nav>
+      <a onclick="filterProperties('alquiler')">Alquileres</a>
+      <a onclick="filterProperties('venta')">Ventas</a>
+      <a onclick="filterProperties('tasacion')">Tasaciones</a>
+      <a onclick="filterProperties('administracion')">Administración</a>
+    </nav>
+  </header>
+
+  <section class="hero-carousel" id="heroCarousel">
+    <div class="carousel-slide active" style="background-image: url('rioCuartojpg.webp');">
+      <div class="slide-content">
+        <h2>Bienvenido a Cruz Inmobiliaria</h2>
+        <p class="details">Cargando propiedades...</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="search-section">
+    <div class="search-box">
+      <select id="searchOperation">
+        <option value="">Tipo de operación</option>
+        <option value="venta">Venta</option>
+        <option value="alquiler">Alquiler</option>
+      </select>
+
+      <select id="searchPropertyType">
+        <option value="">Tipo de propiedad</option>
+        <option value="casa">Casa</option>
+        <option value="departamento">Departamento</option>
+        <option value="terreno">Terreno</option>
+        <option value="cochera">Cochera</option>
+        <option value="local">Local</option>
+      </select>
+
+      <select id="searchLocation">
+        <option value="">Ciudad o barrio</option>
+        <option value="banda-norte">Banda Norte</option>
+        <option value="centro">Centro</option>
+        <option value="abilene">Abilene</option>
+        <option value="bimaco">Bimaco</option>
+        <option value="alberdi">Alberdi</option>
+        <option value="las-quintas">Las Quintas</option>
+      </select>
+
+      <button onclick="searchProperties()">Buscar propiedades</button>
+    </div>
+  </section>
+
+  <section class="properties">
+    <h2>Todas las Propiedades</h2>
+    <div class="property-grid" id="propertyGrid">
+      <div class="loading">Cargando propiedades...</div>
+    </div>
+  </section>
+
+  <section class="social-section">
+    <h2>Seguinos en nuestras redes</h2>
+    <p>Mantenete al día con las últimas propiedades y novedades</p>
+    
+    <div class="social-icons">
+      <a href="https://www.instagram.com/tu_usuario" target="_blank" class="social-icon instagram">
+        <div class="social-icon-circle">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
+        </div>
+        <span>@cruzinmobiliaria</span>
+      </a>
+
+      <a href="https://www.facebook.com/tu_pagina" target="_blank" class="social-icon facebook">
+        <div class="social-icon-circle">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook">
+        </div>
+        <span>Cruz Inmobiliaria</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Cruz Inmobiliaria — Todos los derechos reservados</p>
+  </footer>
+
+  <div class="whatsapp-fixed">
+    <a href="https://api.whatsapp.com/send/?phone=543585621318&text&type=phone_number&app_absent=0">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+      Enviar WhatsApp
+    </a>
+  </div>
+
+  <script>
+    let allProperties = [];
+    let currentSlide = 0;
+
+    function loadProperties() {
+      try {
+        const stored = localStorage.getItem('cruz-properties');
+        if (stored) {
+          allProperties = JSON.parse(stored);
+          console.log('✅ Propiedades cargadas:', allProperties.length);
+        } else {
+          allProperties = [];
+          console.log('ℹ️ No hay propiedades guardadas');
+        }
+      } catch (error) {
+        console.error('❌ Error cargando propiedades:', error);
+        allProperties = [];
+      }
+      
+      renderProperties();
+      renderCarousel();
+    }
+
+    function renderCarousel() {
+      const carousel = document.getElementById('heroCarousel');
+      const featured = allProperties.filter(p => p.featured).slice(0, 3);
+      
+      if (featured.length === 0 && allProperties.length > 0) {
+        featured.push(...allProperties.slice(0, 3));
+      }
+
+      if (featured.length === 0) {
+        carousel.innerHTML = `
+          <div class="carousel-slide active" style="background-image: url('rioCuartojpg.webp');">
+            <div class="slide-content">
+              <h2>Bienvenido a Cruz Inmobiliaria</h2>
+              <p class="details">Tu hogar ideal te está esperando</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const slidesHTML = featured.map((prop, index) => `
+        <div class="carousel-slide ${index === 0 ? 'active' : ''}" style="background-image: url('${prop.image || 'rioCuartojpg.webp'}');">
+          <div class="slide-content">
+            <span class="slide-badge ${prop.type}">${prop.type === 'venta' ? 'Venta' : 'Alquiler'}</span>
+            <h2>${prop.title}</h2>
+            <p class="price">${prop.price}</p>
+            <p class="details">${prop.description}</p>
+            <a href="${prop.whatsapp}" class="btn-ver-mas">Ver más detalles</a>
+          </div>
+        </div>
+      `).join('');
+
+      const indicators = featured.map((_, index) => 
+        `<div class="indicator ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></div>`
+      ).join('');
+
+      carousel.innerHTML = `
+        ${slidesHTML}
+        ${featured.length > 1 ? `
+          <div class="carousel-arrow prev" onclick="changeSlide(-1)">‹</div>
+          <div class="carousel-arrow next" onclick="changeSlide(1)">›</div>
+          <div class="carousel-indicators">${indicators}</div>
+        ` : ''}
+      `;
+
+      if (featured.length > 1) {
+        setInterval(() => changeSlide(1), 5000);
+      }
+    }
+
+    function showSlide(n) {
+      const slides = document.querySelectorAll('.carousel-slide');
+      const indicators = document.querySelectorAll('.indicator');
+      
+      if (slides.length === 0) return;
+      
+      if (n >= slides.length) currentSlide = 0;
+      if (n < 0) currentSlide = slides.length - 1;
+      
+      slides.forEach(slide => slide.classList.remove('active'));
+      indicators.forEach(ind => ind.classList.remove('active'));
+      
+      slides[currentSlide].classList.add('active');
+      if (indicators[currentSlide]) {
+        indicators[currentSlide].classList.add('active');
+      }
+    }
+
+    function changeSlide(direction) {
+      currentSlide += direction;
+      showSlide(currentSlide);
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      showSlide(currentSlide);
+    }
+
+    function renderProperties() {
+      const grid = document.getElementById('propertyGrid');
+      
+      if (allProperties.length === 0) {
+        grid.innerHTML = `
+          <div class="loading">
+            <h3>No hay propiedades disponibles</h3>
+            <p>Pronto agregaremos nuevas opciones</p>
+          </div>
+        `;
+        return;
+      }
+
+      const propertiesHTML = allProperties.map(prop => `
+        <div class="property-card" data-type="${prop.type}" data-property="${prop.propertyType}" data-location="${prop.location}">
+          <img src="${prop.image || 'https://via.placeholder.com/400x250?text=Sin+Imagen'}" alt="${prop.title}" onerror="this.src='https://via.placeholder.com/400x250?text=Sin+Imagen'">
+          <div class="property-info">
+            <span class="badge ${prop.type}">${getBadgeText(prop.type)}</span>
+            <h3>${prop.title}</h3>
+            <p>${prop.description}</p>
+            <p class="price">${prop.price}</p>
+            <a href="${prop.whatsapp}">Consultar</a>
+          </div>
+        </div>
+      `).join('');
+
+      grid.innerHTML = propertiesHTML;
+    }
+
+    function getBadgeText(type) {
+      const badges = {
+        'venta': 'Venta',
+        'alquiler': 'Alquiler',
+        'tasacion': 'Tasación',
+        'administracion': 'Administración'
+      };
+      return badges[type] || type;
+    }
+
+    function filterProperties(type) {
+      const cards = document.querySelectorAll('.property-card');
+      const links = document.querySelectorAll('nav a');
+      
+      links.forEach(link => link.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      cards.forEach(card => {
+        const cardType = card.getAttribute('data-type');
+        if (cardType === type) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      document.querySelector('.properties').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+
+    function searchProperties() {
+      const operation = document.getElementById('searchOperation').value;
+      const propertyType = document.getElementById('searchPropertyType').value;
+      const location = document.getElementById('searchLocation').value;
+      
+      const cards = document.querySelectorAll('.property-card');
+      
+      cards.forEach(card => {
+        const cardType = card.getAttribute('data-type');
+        const cardProperty = card.getAttribute('data-property');
+        const cardLocation = card.getAttribute('data-location');
+        
+        let showCard = true;
+        
+        if (operation && cardType !== operation) {
+          showCard = false;
+        }
+        
+        if (propertyType && cardProperty !== propertyType) {
+          showCard = false;
+        }
+        
+        if (location && cardLocation !== location) {
+          showCard = false;
+        }
+        
+        if (showCard) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      document.querySelector('.properties').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', loadProperties);
+  </script>
+
+</body>
+</html>
