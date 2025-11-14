@@ -648,20 +648,40 @@
     </a>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { 
+      getFirestore, 
+      collection, 
+      getDocs, 
+      query,
+      orderBy 
+    } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUIKeALIRvKUSQ0R8_N_fEGRQ3bc00gp0",
+      authDomain: "cruz-inmobiliaria.firebaseapp.com",
+      projectId: "cruz-inmobiliaria",
+      storageBucket: "cruz-inmobiliaria.firebasestorage.app",
+      messagingSenderId: "659433029884",
+      appId: "1:659433029884:web:26e0fc1d16b3b09bac5779"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     let allProperties = [];
     let currentSlide = 0;
 
-    function loadProperties() {
+    async function loadProperties() {
       try {
-        const stored = localStorage.getItem('cruz-properties');
-        if (stored) {
-          allProperties = JSON.parse(stored);
-          console.log('✅ Propiedades cargadas:', allProperties.length);
-        } else {
-          allProperties = [];
-          console.log('ℹ️ No hay propiedades guardadas');
-        }
+        const q = query(collection(db, 'properties'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        allProperties = [];
+        querySnapshot.forEach((doc) => {
+          allProperties.push({ id: doc.id, ...doc.data() });
+        });
+        console.log('✅ Propiedades cargadas desde Firebase:', allProperties.length);
       } catch (error) {
         console.error('❌ Error cargando propiedades:', error);
         allProperties = [];
@@ -717,7 +737,7 @@
       `;
 
       if (featured.length > 1) {
-        setInterval(() => changeSlide(1), 5000);
+        setInterval(() => window.changeSlide(1), 5000);
       }
     }
 
@@ -739,15 +759,15 @@
       }
     }
 
-    function changeSlide(direction) {
+    window.changeSlide = function(direction) {
       currentSlide += direction;
       showSlide(currentSlide);
-    }
+    };
 
-    function goToSlide(n) {
+    window.goToSlide = function(n) {
       currentSlide = n;
       showSlide(currentSlide);
-    }
+    };
 
     function renderProperties() {
       const grid = document.getElementById('propertyGrid');
@@ -788,7 +808,7 @@
       return badges[type] || type;
     }
 
-    function filterProperties(type) {
+    window.filterProperties = function(type) {
       const cards = document.querySelectorAll('.property-card');
       const links = document.querySelectorAll('nav a');
       
@@ -808,9 +828,9 @@
         behavior: 'smooth',
         block: 'start'
       });
-    }
+    };
 
-    function searchProperties() {
+    window.searchProperties = function() {
       const operation = document.getElementById('searchOperation').value;
       const propertyType = document.getElementById('searchPropertyType').value;
       const location = document.getElementById('searchLocation').value;
@@ -847,7 +867,7 @@
         behavior: 'smooth',
         block: 'start'
       });
-    }
+    };
 
     window.addEventListener('DOMContentLoaded', loadProperties);
   </script>
