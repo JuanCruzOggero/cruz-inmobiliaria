@@ -848,8 +848,8 @@
       loadProperties();
     }
 
-    // Manejar el login - Esperar a que el DOM esté listo
-window.addEventListener('DOMContentLoaded', () => {
+   // Manejar el login
+setTimeout(() => {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', async function(event) {
@@ -874,7 +874,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+}, 100);
 
     window.logout = async function() {
       if (confirm('¿Estás seguro de cerrar sesión?')) {
