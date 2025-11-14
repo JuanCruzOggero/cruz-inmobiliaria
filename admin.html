@@ -848,31 +848,33 @@
       loadProperties();
     }
 
-    window.handleLogin = async function(event) {
-      event.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      const errorDiv = document.getElementById('loginError');
-      const loginBtn = document.getElementById('loginBtn');
-      loginBtn.disabled = true;
-      loginBtn.textContent = 'Iniciando...';
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        console.error('Error de login:', error);
-        errorDiv.classList.add('show');
-        setTimeout(() => { errorDiv.classList.remove('show'); }, 3000);
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Iniciar Sesión';
+    // Manejar el login
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', async function(event) {
+          event.preventDefault();
+          const email = document.getElementById('loginEmail').value;
+          const password = document.getElementById('loginPassword').value;
+          const errorDiv = document.getElementById('loginError');
+          const loginBtn = document.getElementById('loginBtn');
+          
+          loginBtn.disabled = true;
+          loginBtn.textContent = 'Iniciando...';
+          
+          try {
+            await signInWithEmailAndPassword(auth, email, password);
+          } catch (error) {
+            console.error('Error de login:', error);
+            errorDiv.classList.add('show');
+            setTimeout(() => { errorDiv.classList.remove('show'); }, 3000);
+          } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Iniciar Sesión';
+          }
+        });
       }
-    };
-
-    // Agregar evento al formulario de login
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-      loginForm.addEventListener('submit', window.handleLogin);
-    }
+    });
 
     window.logout = async function() {
       if (confirm('¿Estás seguro de cerrar sesión?')) {
@@ -962,5 +964,187 @@
     function clearForm() {
       document.getElementById('inputType').value = 'venta';
       document.getElementById('inputPropertyType').value = 'casa';
-      document.getElementById('inputLocation').value
+      document.getElementById('inputLocation').value = 'banda-norte';
+      document.getElementById('inputPrice').value = '';
+      document.getElementById('inputTitle').value = '';
+      document.getElementById('inputDescription').value = '';
+      document.getElementById('inputImage').value = '';
+      document.getElementById('inputFeatured').checked = false;
+      document.getElementById('imagePreview').classList.remove('show');
+      document.getElementById('uploadProgress').classList.remove('show');
+      document.getElementById('formTitle').textContent = 'Nueva Propiedad';
     }
+
+    window.previewImage = function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('imagePreview');
+          preview.src = e.target.result;
+          preview.classList.add('show');
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    async function uploadImage(file) {
+      return new Promise((resolve, reject) => {
+        const timestamp = Date.now();
+        const fileName = `properties/${timestamp}_${file.name}`;
+        const storageRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        document.getElementById('uploadProgress').classList.add('show');
+
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Subiendo: ${Math.round(progress)}%`;
+          },
+          (error) => {
+            console.error('Error subiendo imagen:', error);
+            document.getElementById('uploadProgress').classList.remove('show');
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              document.getElementById('uploadProgress').classList.remove('show');
+              resolve(downloadURL);
+            } catch (error) {
+              reject(error);
+            }
+          }
+        );
+      });
+    }
+
+    window.saveProperty = async function() {
+      const type = document.getElementById('inputType').value;
+      const propertyType = document.getElementById('inputPropertyType').value;
+      const location = document.getElementById('inputLocation').value;
+      const price = document.getElementById('inputPrice').value;
+      const title = document.getElementById('inputTitle').value;
+      const description = document.getElementById('inputDescription').value;
+      const featured = document.getElementById('inputFeatured').checked;
+
+      if (!title || !description || !price) {
+        showAlert('Por favor completá todos los campos obligatorios', 'error');
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Guardando...';
+      showLoading(true);
+
+      try {
+        let imageUrl = uploadedImageUrl;
+
+        if (selectedFile) {
+          imageUrl = await uploadImage(selectedFile);
+        }
+
+        const whatsappMessage = encodeURIComponent(`Hola! Me interesa la propiedad: ${title}`);
+        const whatsappLink = `https://api.whatsapp.com/send/?phone=543585621318&text=${whatsappMessage}&type=phone_number&app_absent=0`;
+
+        const propertyData = {
+          type,
+          propertyType,
+          location,
+          price,
+          title,
+          description,
+          featured,
+          image: imageUrl || '',
+          whatsapp: whatsappLink
+        };
+
+        if (editingId) {
+          await updateDoc(doc(db, 'properties', editingId), {
+            ...propertyData,
+            updatedAt: serverTimestamp()
+          });
+          showAlert('✅ Propiedad actualizada exitosamente', 'success');
+        } else {
+          await addDoc(collection(db, 'properties'), {
+            ...propertyData,
+            createdAt: serverTimestamp()
+          });
+          showAlert('✅ Propiedad agregada exitosamente', 'success');
+        }
+
+        cancelForm();
+        await loadProperties();
+      } catch (error) {
+        console.error('Error guardando propiedad:', error);
+        showAlert('❌ Error al guardar la propiedad', 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Guardar Propiedad';
+        showLoading(false);
+      }
+    };
+
+    window.editProperty = function(id) {
+      const property = properties.find(p => p.id === id);
+      if (!property) return;
+
+      editingId = id;
+      uploadedImageUrl = property.image || '';
+
+      document.getElementById('inputType').value = property.type;
+      document.getElementById('inputPropertyType').value = property.propertyType;
+      document.getElementById('inputLocation').value = property.location;
+      document.getElementById('inputPrice').value = property.price;
+      document.getElementById('inputTitle').value = property.title;
+      document.getElementById('inputDescription').value = property.description;
+      document.getElementById('inputFeatured').checked = property.featured || false;
+
+      if (property.image) {
+        const preview = document.getElementById('imagePreview');
+        preview.src = property.image;
+        preview.classList.add('show');
+      }
+
+      document.getElementById('formTitle').textContent = 'Editar Propiedad';
+      document.getElementById('formContainer').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.deleteProperty = async function(id) {
+      const property = properties.find(p => p.id === id);
+      if (!property) return;
+
+      if (!confirm(`¿Estás seguro de eliminar "${property.title}"?`)) {
+        return;
+      }
+
+      showLoading(true);
+      try {
+        if (property.image) {
+          try {
+            const imageRef = ref(storage, property.image);
+            await deleteObject(imageRef);
+          } catch (error) {
+            console.log('No se pudo eliminar la imagen:', error);
+          }
+        }
+
+        await deleteDoc(doc(db, 'properties', id));
+        showAlert('✅ Propiedad eliminada exitosamente', 'success');
+        await loadProperties();
+      } catch (error) {
+        console.error('Error eliminando propiedad:', error);
+        showAlert('❌ Error al eliminar la propiedad', 'error');
+      } finally {
+        showLoading(false);
+      }
+    };
+  </script>
+
+</body>
+</html>
