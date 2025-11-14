@@ -940,7 +940,9 @@
     window.toggleForm = function() {
       const form = document.getElementById('formContainer');
       form.classList.toggle('show');
-      if (form.classList.contains('show')) { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      if (form.classList.contains('show')) { 
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      }
     };
 
     window.cancelForm = function() {
@@ -954,11 +956,5 @@
     function clearForm() {
       document.getElementById('inputType').value = 'venta';
       document.getElementById('inputPropertyType').value = 'casa';
-      document.getElementById('inputLocation').value = 'banda-norte';
-      document.getElementById('inputTitle').value = '';
-      document.getElementById('inputDescription').value = '';
-      document.getElementById('inputPrice').value = '';
-      document.getElementById('inputImage').value = '';
-      document.getElementById('inputFeatured').checked = false;
-      document.getElementByI
+      document.getElementById('inputLocation').value
     }
