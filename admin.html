@@ -645,7 +645,7 @@
         Usuario o contraseña incorrectos
       </div>
 
-      <form class="login-form" onsubmit="handleLogin(event)">
+      <form class="login-form" id="loginForm">
         <input 
           type="email" 
           id="loginEmail" 
@@ -867,6 +867,12 @@
         loginBtn.textContent = 'Iniciar Sesión';
       }
     };
+
+    // Agregar evento al formulario de login
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', window.handleLogin);
+    }
 
     window.logout = async function() {
       if (confirm('¿Estás seguro de cerrar sesión?')) {
