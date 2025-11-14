@@ -848,33 +848,31 @@
       loadProperties();
     }
 
-    // Manejar el login
-    document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
-      if (loginForm) {
-        loginForm.addEventListener('submit', async function(event) {
-          event.preventDefault();
-          const email = document.getElementById('loginEmail').value;
-          const password = document.getElementById('loginPassword').value;
-          const errorDiv = document.getElementById('loginError');
-          const loginBtn = document.getElementById('loginBtn');
-          
-          loginBtn.disabled = true;
-          loginBtn.textContent = 'Iniciando...';
-          
-          try {
-            await signInWithEmailAndPassword(auth, email, password);
-          } catch (error) {
-            console.error('Error de login:', error);
-            errorDiv.classList.add('show');
-            setTimeout(() => { errorDiv.classList.remove('show'); }, 3000);
-          } finally {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Iniciar Sesión';
-          }
-        });
-      }
-    });
+    // Manejar el login - Esperar a que el DOM esté listo
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Iniciando...';
+        
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+          console.error('Error de login:', error);
+          errorDiv.classList.add('show');
+          setTimeout(() => { errorDiv.classList.remove('show'); }, 3000);
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Iniciar Sesión';
+        }
+      });
+    }
 
     window.logout = async function() {
       if (confirm('¿Estás seguro de cerrar sesión?')) {
