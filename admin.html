@@ -848,8 +848,8 @@
       loadProperties();
     }
 
-   // Manejar el login
-setTimeout(() => {
+  // Inicializar eventos del formulario de login
+function initLoginForm() {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', async function(event) {
@@ -874,7 +874,14 @@ setTimeout(() => {
       }
     });
   }
-}, 100);
+}
+
+// Llamar después de que se verifique la autenticación
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLoginForm);
+} else {
+  initLoginForm();
+}
 
     window.logout = async function() {
       if (confirm('¿Estás seguro de cerrar sesión?')) {
